@@ -172,19 +172,103 @@ class Pexels:
 
         Returns:
             dict: Photo data
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
         """
 
         return self._make_request(f"photos/{photo_id}")
     
 
     def get_video(self, video_id: Union[int, str]) -> Dict[str, Any]:
-        """Get a specific video by ID
+        """Get a specific video by ID.
 
         Args:
             video_id (int or str): The video ID
 
         Returns:
             dict: Video data
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
         """
 
         return self._make_request(f"videos/{video_id}", base_url=self.VIDEO_BASE_URL)
+    
+
+    def get_curated_photos(
+        self,
+        page: int = 1,
+        per_page: int = 15) -> Dict[str, Any]:
+        """Get photos curated by the Pexels team.
+        
+        Args:
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+        
+        params = {
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request("curated", params)
+    
+
+    def get_popular_videos(
+        self,
+        min_width: Optional[int] = None,
+        min_height: Optional[int] = None,
+        min_duration: Optional[int] = None,
+        max_duration: Optional[int] = None,
+        page: int = 1,
+        per_page: int = 15) -> Dict[str, Any]:
+        """Get the current popular Pexels videos.
+
+        Args:
+            min_width (_type_): The minimum width in pixels of the returned videos.
+            min_height (_type_): The minimum height in pixels of the returned videos.
+            min_duration (_type_): The minimum duration in seconds of the returned videos.
+            max_duration (_type_): The maximum duration in seconds of the returned videos.
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+        
+        params = {
+            "min_width": min_width,
+            "min_height": min_height,
+            "min_duration": min_duration,
+            "max_duration": max_duration,
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request("popular", params, base_url=self.VIDEO_BASE_URL)
