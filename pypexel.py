@@ -2,7 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 from urllib.parse import urljoin
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 
 load_dotenv()
 
@@ -164,4 +164,27 @@ class Pexels:
         return self._make_request("search", params, self.VIDEO_BASE_URL)
 
 
+    def get_photo(self, photo_id: Union[int, str]) -> Dict[str, Any]:
+        """Get a specific photo by ID.
 
+        Args:
+            photo_id (int or str): The photo ID
+
+        Returns:
+            dict: Photo data
+        """
+
+        return self._make_request(f"photos/{photo_id}")
+    
+
+    def get_video(self, video_id: Union[int, str]) -> Dict[str, Any]:
+        """Get a specific video by ID
+
+        Args:
+            video_id (int or str): The video ID
+
+        Returns:
+            dict: Video data
+        """
+
+        return self._make_request(f"videos/{video_id}", base_url=self.VIDEO_BASE_URL)
