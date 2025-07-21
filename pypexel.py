@@ -74,8 +74,8 @@ class Pexels:
             size: str = None,
             color: str = None,
             locale: str = None,
-            page: int = 1,
-            per_page: int = 15
+            page: Optional[int] = 1,
+            per_page: Optional[int] = 15
         ) -> dict:
         """Search for photos on Pexels
 
@@ -124,8 +124,8 @@ class Pexels:
         orientation: Optional[str] = None,
         size: Optional[str] = None,
         locale: Optional[str] = None,
-        page: int = 1,
-        per_page: int = 15) -> Dict[str, Any]:
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
         """Search for videos on Pexels
 
         Args:
@@ -200,8 +200,8 @@ class Pexels:
 
     def get_curated_photos(
         self,
-        page: int = 1,
-        per_page: int = 15) -> Dict[str, Any]:
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
         """Get photos curated by the Pexels team.
         
         Args:
@@ -236,8 +236,8 @@ class Pexels:
         min_height: Optional[int] = None,
         min_duration: Optional[int] = None,
         max_duration: Optional[int] = None,
-        page: int = 1,
-        per_page: int = 15) -> Dict[str, Any]:
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
         """Get the current popular Pexels videos.
 
         Args:
