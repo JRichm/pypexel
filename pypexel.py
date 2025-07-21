@@ -272,3 +272,110 @@ class Pexels:
         }
 
         return self._make_request("popular", params, base_url=self.VIDEO_BASE_URL)
+    
+
+    def get_featured_collections(
+        self,
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        """Get all featured collections on Pexels
+
+        Args:
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """        
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+        
+        params = {
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request("collections/featured", params)
+    
+    
+    def get_my_collections(
+        self,
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        """Get all of your collections.
+
+        Args:
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+        
+        params = {
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request("collections", params)
+    
+
+    def get_collection_media(
+        self,
+        collection_id: Union[int, str],
+        media_type: Optional[str] = None,
+        sort: Optional[str] = "asc",
+        page: Optional[int] = 1,
+        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        """Get all media within a collection
+
+        Args:
+            collection_id (int or str): ID of the Collection
+            media_type (str, optional): The type of media you are requesting: `photos` or `videos`. If not given, all media will be returned.
+            sort (str, optional): The order of items in the media collection: `asc` or `desc`
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """        
+
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+        
+        if media_type not in ['photos', 'videos', None]:
+            raise ValueError("media_type must be either `photos` or `videos`")
+        
+        params = {
+            "type": media_type,
+            "sort": sort,
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request(f"collections/{collection_id}", params)
