@@ -1,0 +1,167 @@
+import os
+import requests
+from dotenv import load_dotenv
+from urllib.parse import urljoin
+from typing import Optional, Dict, Any
+
+load_dotenv()
+
+
+class PexelsAPIError(Exception):
+    """Custom exception for Pexels API errors"""
+    pass
+
+
+class Pexels:
+    """A Python wrapper for the Pexels API to easily search and download photos and videos."""
+
+    BASE_URL = "https://api.pexels.com/v1/"
+    VIDEO_BASE_URL = "https://api.pexels.com/videos/"
+
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = api_key or os.getenv("PEXELS_API_KEY")
+        if not self.api_key:
+            raise ValueError("API key is required. Provide it directly or set PEXELS_API_KEY environment variable.")
+        
+        self.headers = {
+            "Authorization": self.api_key,
+            "User-Agent": "pypexel/0.0.1"
+        }
+
+
+    def _make_request(self, endpoint: str, params: Optional[Dict[str, Any]] = None, base_url: Optional[str] = None) -> Dict[str, Any]:
+        """Make a requset to the Pexels API.
+
+        Args:
+            endpoint (str): The API endpoint
+            params (Optional[Dict[str, Any]], optional): Query parameters
+            base_url (Optional[str], optional): Base URL to use. Defaults to BASE_URL
+
+        Returns:
+            Dict[str, Any]: JSON response from the API
+
+        Raises:
+            PexelsAPIError: If the API request fails
+        """
+        url = urljoin(base_url or self.BASE_URL, endpoint.lstrip('/'))
+
+        # remove `None` values from params
+        if params:
+            params = { k: v for k, v in params.items() if v is not None }
+
+        try:
+            response = requests.get(url, headers=self.headers, params=params, timeout=30)
+            response.raise_for_status()
+            return response.json()
+
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 429:
+                raise PexelsAPIError("API rate limit exceeded. Please wait before making more requests.")
+            elif response.status_code == 403:
+                raise PexelsAPIError("Invalid API key or insufficient permissions.")
+            else:
+                raise PexelsAPIError(f"HTTP error {response.status_code}: {response.text}")
+        except requests.exceptions.RequestException as e:
+            raise PexelsAPIError(f"Request failed: {str(e)}")
+        except ValueError as e:
+            raise PexelsAPIError(f"Invalid JSON response: {str(e)}")
+
+
+    def search_photos(
+            self,
+            query: str,
+            orientation: str = None,
+            size: str = None,
+            color: str = None,
+            locale: str = None,
+            page: int = 1,
+            per_page: int = 15
+        ) -> dict:
+        """Search for photos on Pexels
+
+        Args:
+            query (str): The search query (e.g., `Ocean`, `Tigers`, `People`)
+            orientation (str, optional): Desired photo orientation: `landscape`, `portrait`, or `square`
+            size (str, optional): Minimum photo size: `large` (24MP), `medium` (12MP), or `small` (4MP)
+            color (str, optional): Desired photo color: `red`, `orange`, `yellow`, `green`, `turquoise`, `blue`, `violet`, `pink`, `brown`, `black`, `gray`, `white`, or hex code
+            locale (str, optional): Search locale (e.g., `en-US`, `pt-BR`)
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing photos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """
+
+        if not query:
+            raise ValueError("Query parameter is required")
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+
+        params = {
+            "query": query,
+            "orientation": orientation,
+            "size": size,
+            "color": color,
+            "locale": locale,
+            "page": page,
+            "per_page": per_page,
+        }
+        
+        return self._make_request("search", params)
+
+
+    def search_videos(
+        self,
+        query: str,
+        orientation: Optional[str] = None,
+        size: Optional[str] = None,
+        locale: Optional[str] = None,
+        page: int = 1,
+        per_page: int = 15) -> Dict[str, Any]:
+        """Search for videos on Pexels
+
+        Args:
+            query (str): The search query (e.g., `Ocean`, `Tigers`, `People`)
+            orientation (str, optional): Desired photo orientation: `landscape`, `portrait`, or `square`
+            size (str, optional): Minimum photo size: `large` (4K), `medium` (Full HD), or `small` (HD)
+            locale (str, optional): Search locale (e.g., `en-US`, `pt-BR`)
+            page (int, optional): Page number (default: `1`)
+            per_page (int, optional): Results per page, max `80` (default: `15`)
+
+        Returns:
+            dict: API response containing videos and metadata
+
+        Raises:
+            PexelsAPIError: If the API request fails
+            ValueError: If parameters are invalid
+        """
+        if not query:
+            raise ValueError("Query parameter is required")
+        
+        if per_page > 80:
+            raise ValueError("per_page cannot exceed 80")
+        
+        if page < 1:
+            raise ValueError("page must be >= 1")
+
+        params = {
+            "query": query,
+            "orientation": orientation,
+            "size": size,
+            "locale": locale,
+            "page": page,
+            "per_page": per_page,
+        }
+
+        return self._make_request("search", params, self.VIDEO_BASE_URL)
+
+
+
