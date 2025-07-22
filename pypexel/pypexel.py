@@ -4,6 +4,13 @@ from dotenv import load_dotenv
 from urllib.parse import urljoin
 from typing import Optional, Dict, Any, Union
 
+from .models import Photo, Video, Collection
+from .utils import (
+    parse_photo,
+    parse_video,
+    parse_collection
+)
+
 load_dotenv()
 
 
@@ -75,7 +82,8 @@ class Pexels:
             color: str = None,
             locale: str = None,
             page: Optional[int] = 1,
-            per_page: Optional[int] = 15
+            per_page: Optional[int] = 15,
+            as_objects: Optional[bool] = False
         ) -> dict:
         """Search for photos on Pexels
 
@@ -87,6 +95,7 @@ class Pexels:
             locale (str, optional): Search locale (e.g., `en-US`, `pt-BR`)
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Photo objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing photos and metadata
@@ -115,8 +124,12 @@ class Pexels:
             "per_page": per_page,
         }
         
-        return self._make_request("search", params)
+        response = self._make_request("search", params)
 
+        if as_objects:
+            return [parse_photo(photo) for photo in response.get('photos', [])]
+
+        return response
 
     def search_videos(
         self,
