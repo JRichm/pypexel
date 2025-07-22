@@ -138,7 +138,9 @@ class Pexels:
         size: Optional[str] = None,
         locale: Optional[str] = None,
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Search for videos on Pexels
 
         Args:
@@ -148,6 +150,7 @@ class Pexels:
             locale (str, optional): Search locale (e.g., `en-US`, `pt-BR`)
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Video objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -174,14 +177,20 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request("search", params, self.VIDEO_BASE_URL)
+        response = self._make_request("search", params, self.VIDEO_BASE_URL)
+
+        if as_objects:
+            return [parse_video(video) for video in response.get('videos', [])]
+        
+        return response
 
 
-    def get_photo(self, photo_id: Union[int, str]) -> Dict[str, Any]:
+    def get_photo(self, photo_id: Union[int, str], as_object: Optional[bool] = False) -> Dict[str, Any]:
         """Get a specific photo by ID.
 
         Args:
             photo_id (int or str): The photo ID
+            as_object (bool, optional): Return Photo object instead of raw dict (default: `False`)
 
         Returns:
             dict: Photo data
@@ -191,14 +200,20 @@ class Pexels:
             ValueError: If parameters are invalid
         """
 
-        return self._make_request(f"photos/{photo_id}")
+        response = self._make_request(f"photos/{photo_id}")
     
+        if as_object:
+            return parse_photo(response)
+        
+        return response
 
-    def get_video(self, video_id: Union[int, str]) -> Dict[str, Any]:
+
+    def get_video(self, video_id: Union[int, str], as_object: Optional[bool] = False) -> Dict[str, Any]:
         """Get a specific video by ID.
 
         Args:
             video_id (int or str): The video ID
+            as_object (bool, optional): Return Video object instead of raw dict (default: `False`)
 
         Returns:
             dict: Video data
@@ -208,18 +223,26 @@ class Pexels:
             ValueError: If parameters are invalid
         """
 
-        return self._make_request(f"videos/{video_id}", base_url=self.VIDEO_BASE_URL)
+        response = self._make_request(f"videos/{video_id}", base_url=self.VIDEO_BASE_URL)
+    
+        if as_object:
+            return parse_video(response)
+        
+        return response
     
 
     def get_curated_photos(
         self,
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Get photos curated by the Pexels team.
         
         Args:
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Photo objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -240,7 +263,12 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request("curated", params)
+        response = self._make_request("curated", params)
+    
+        if as_objects:
+            return [parse_photo(photo) for photo in response.get('photos', [])]
+
+        return response
     
 
     def get_popular_videos(
@@ -250,7 +278,9 @@ class Pexels:
         min_duration: Optional[int] = None,
         max_duration: Optional[int] = None,
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Get the current popular Pexels videos.
 
         Args:
@@ -260,6 +290,7 @@ class Pexels:
             max_duration (_type_): The maximum duration in seconds of the returned videos.
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Video objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -284,18 +315,26 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request("popular", params, base_url=self.VIDEO_BASE_URL)
+        response = self._make_request("popular", params, base_url=self.VIDEO_BASE_URL)
     
+        if as_objects:
+            return [parse_video(video) for video in response.get('videos', [])]
+        
+        return response
+
 
     def get_featured_collections(
         self,
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Get all featured collections on Pexels
 
         Args:
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Collection objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -316,18 +355,26 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request("collections/featured", params)
+        response = self._make_request("collections/featured", params)
+
+        if as_objects:
+            return [parse_collection(collection) for collection in response.get('collections', [])]
+        
+        return response
     
     
     def get_my_collections(
         self,
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Get all of your collections.
 
         Args:
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Collection objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -348,8 +395,13 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request("collections", params)
+        resposne = self._make_request("collections", params)
     
+        if as_objects:
+            return [parse_collection(collection) for collection in resposne.get('collections', [])]
+        
+        return resposne
+
 
     def get_collection_media(
         self,
@@ -357,7 +409,9 @@ class Pexels:
         media_type: Optional[str] = None,
         sort: Optional[str] = "asc",
         page: Optional[int] = 1,
-        per_page: Optional[int] = 15) -> Dict[str, Any]:
+        per_page: Optional[int] = 15,
+        as_objects: Optional[bool] = False
+    ) -> Dict[str, Any]:
         """Get all media within a collection
 
         Args:
@@ -366,6 +420,7 @@ class Pexels:
             sort (str, optional): The order of items in the media collection: `asc` or `desc`
             page (int, optional): Page number (default: `1`)
             per_page (int, optional): Results per page, max `80` (default: `15`)
+            as_objects (bool, optional): Return Photo/Video objects instead of raw dict (default: `False`)
 
         Returns:
             dict: API response containing videos and metadata
@@ -391,4 +446,11 @@ class Pexels:
             "per_page": per_page,
         }
 
-        return self._make_request(f"collections/{collection_id}", params)
+        response = self._make_request(f"collections/{collection_id}", params)
+
+        if as_objects:
+            videos = [parse_video(video) for video in [m for m in response.get('media', []) if m.get('type', '') == 'Video']]
+            pictures = [parse_photo(photo) for photo in [m for m in response.get('media', []) if m.get('type', '') == 'Photo']]
+            return videos + pictures
+        
+        return response
