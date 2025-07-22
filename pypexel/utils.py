@@ -35,7 +35,7 @@ def parse_photo(photo_data: Dict[str, Any]) -> Photo:
         photographer_url=photo_data.get('photographer_url', ''),
         photographer_id=photo_data.get('photographer_id', 0),
         avg_color=photo_data.get('avg_color', ''),
-        src=photo_data.get('src', photo_src),
+        src=photo_src,
         alt=photo_data.get('alt', '')
     )
 
