@@ -456,7 +456,7 @@ class Pexels:
         return response
     
 
-    def download_video(self, video: Video, quality: str) -> bool:
+    def download_video(self, video: Video, quality: str) -> str:
         """Download a video from a given URL.
         
         Args:
