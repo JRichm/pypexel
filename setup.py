@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pypexel",
-    version="0.0.2",
+    version="0.1.0",
     author="James Richmond",
     author_email="jamcamcode@gmail.com",
     description="A modern, comprehensive Python wrapper for the Pexels API",

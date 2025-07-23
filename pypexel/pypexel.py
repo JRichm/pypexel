@@ -32,7 +32,7 @@ class Pexels:
         
         self.headers = {
             "Authorization": self.api_key,
-            "User-Agent": "pypexel/0.0.2"
+            "User-Agent": "pypexel/0.1.0"
         }
 
 
