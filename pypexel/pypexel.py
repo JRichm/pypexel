@@ -454,3 +454,42 @@ class Pexels:
             return videos + pictures
         
         return response
+    
+
+    def download_video(self, video: Video, quality: str) -> bool:
+        """Download a video from a given URL.
+        
+        Args:
+            video (Video): Video object to download
+            quality (str): Requested quality: `sd`, `hd`, `uhd`
+
+        Returns:
+            str: The filepath of the downloaded video, or None if download failed
+        """
+
+        try:
+            available_qualities = set([v.quality for v in video.video_files])
+
+            if quality not in available_qualities:
+                raise ValueError(f"`{quality}` is not an available quality. Available: {available_qualities}")
+
+            quality_videos = [v for v in video.video_files if v.quality == quality]
+            quality_videos.sort(key=lambda v: v.width, reverse=True)
+            selected_video = quality_videos[0]
+
+            video_id = video.id
+
+            response = requests.get(selected_video.link, stream=True, timeout=30)
+            response.raise_for_status()
+
+            filename = f"{video_id}_{quality}.mp4"
+
+            with open(filename, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+
+            return filename
+
+        except Exception as e:
+            print(f"Error downloading vide: {str(e)}")
+            return None
